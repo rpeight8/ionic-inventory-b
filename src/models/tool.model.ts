@@ -1,7 +1,10 @@
 import db from '../db/database';
 import type { Tool } from '../types/tool';
 
-export const createTool = (title: string, quantity: number): Promise<void> => {
+export const createTool = (
+  title: string,
+  quantity: number
+): Promise<number> => {
   return new Promise((resolve, reject) => {
     db.run(
       'INSERT INTO tools (title, quantity) VALUES (?, ?)',
@@ -10,9 +13,21 @@ export const createTool = (title: string, quantity: number): Promise<void> => {
         if (err) {
           return reject(err);
         }
-        resolve();
+        // Resolve the promise with the ID of the newly created tool
+        resolve(this.lastID);
       }
     );
+  });
+};
+
+export const getAllTools = (): Promise<Tool[]> => {
+  return new Promise((resolve, reject) => {
+    db.all<Tool>('SELECT id, title, quantity FROM tools', (err, rows) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(rows);
+    });
   });
 };
 

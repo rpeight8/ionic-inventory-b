@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createTool } from '../models/tool.model';
+import { createTool, getAllTools } from '../models/tool.model';
 import { addToolToToolbox } from '../models/toolboxTool.model';
 import {
   getToolsInToolbox,
@@ -9,8 +9,18 @@ import {
 export const createToolHandler = async (req: Request, res: Response) => {
   const { title, quantity } = req.body;
   try {
-    await createTool(title, quantity);
-    res.status(201).send('Tool created');
+    const toolId = await createTool(title, quantity);
+    res.status(201).json({ id: toolId, title, quantity });
+  } catch (err) {
+    if (err instanceof Error) res.status(500).send(err.message);
+    else res.status(500).send('An error occurred');
+  }
+};
+
+export const getAllToolsHandler = async (req: Request, res: Response) => {
+  try {
+    const tools = await getAllTools();
+    res.status(200).json(tools);
   } catch (err) {
     if (err instanceof Error) res.status(500).send(err.message);
     else res.status(500).send('An error occurred');
